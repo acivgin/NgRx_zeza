@@ -1,6 +1,7 @@
 import {
   AddItemAction,
   DeleteItemAction,
+  LoadShoppingAction,
 } from './store/actions/shopping-actions';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
@@ -18,15 +19,19 @@ import { ShoppingItem } from './store/models/shopping-item-model';
 export class AppComponent implements OnInit {
   title: 'Shopping List';
   shoppingItems$: Observable<Array<ShoppingItem>>;
+  // tslint:disable-next-line: ban-types
+  loading$: Observable<Boolean>;
+  error$: Observable<Error>;
   newShoppingItem: ShoppingItem = { id: '', name: '' };
 
   constructor(private store: Store<AppState>) {}
 
   ngOnInit() {
-    this.shoppingItems$ = this.store.select((store) => store.shopping);
-    setTimeout(() => {
-      this.addItem();
-    }, 2000);
+    this.shoppingItems$ = this.store.select(store => store.shopping.list);
+    this.loading$ = this.store.select(store => store.shopping.loading);
+    this.error$ = this.store.select(store => store.shopping.error);
+
+    this.store.dispatch(new LoadShoppingAction());
   }
 
   addItem() {
